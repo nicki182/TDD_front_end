@@ -1,32 +1,49 @@
-import {act} from "react-dom/test-utils";
-import {render} from "react-dom";
-import React, {useState} from 'react';
+import React from "react";
+import {FILTER_USER} from "../graphql/resolvers";
 import Enzyme, {shallow,mount} from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import puppeteer from 'puppeteer'
-import Button from "../page";
-import fetchMock from 'fetch-mock';
-fetchMock.mock('http://localhost:5001', 200);
+import { MockedProvider } from '@apollo/react-testing';
+import Button from "../button";
+const wait = require('waait');
+import Adapter from "enzyme-adapter-react-16";
 describe('Component Button', () => {
-    beforeAll(async () => {
-        Enzyme.configure({ adapter: new Adapter() });
-            })
+        beforeAll(async () => {
+            Enzyme.configure({adapter: new Adapter()});
+        })
     it('Testing Button rendering', () => {
         const mockCallBack = jest.fn()
         const wrapper = mount(
-            <Button updateUsers={mockCallBack}/>
-        );
+            <MockedProvider mocks={[]} typename={false}>
+            <Button usersUpdate={mockCallBack}/>
+        </MockedProvider>
+        )
         wrapper.find("input").instance().value = "d";
         expect(wrapper.find("input").instance().value).toBe("d")
         expect(wrapper.find('[type="submit"]')).toHaveLength(1)
-        }),
-        it('testing fetch connection with backend',async ()=>{
-            const response = await fetch('http://localhost:5001', {
-                method: 'POST',
-                header: {'Content-Type': 'application/json'},
-                body: JSON.stringify({name:'d'})
-            })
-            expect(response.ok).toBe(true)
-            fetchMock.restore()
-        })
+    })
+    it('testing response in query', async () => {
+        const mocks = [
+            {
+                request: {
+                    query: FILTER_USER,
+                    variables: {
+                        name: 'fd',
+                    },
+                },
+                result: {
+                    data: {
+                        filterUser: [{name: 'fd', lastname: '', password: ''}, {name: 'fd', lastname: '', password: ''}]
+                    },
+                },
+            },
+        ];
+        const mockCallBack = jest.fn()
+        const wrapper = mount(
+            <MockedProvider mocks={mocks} addTypename={false}>
+                <Button usersUpdate={mockCallBack}/>
+            </MockedProvider>
+        );
+        wrapper.find("input").instance().value = "fd";
+        wrapper.find('[type="submit"]').simulate('click')
+        await wait(0);
+    })
 })

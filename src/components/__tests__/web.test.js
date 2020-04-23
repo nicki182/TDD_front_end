@@ -1,11 +1,7 @@
 import puppeteer from 'puppeteer'
-import React, {useState} from 'react';
-import Enzyme, {shallow,mount} from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import React from 'react';
 describe('Web', () => {
-    it('should be titled "Google"', async () => {
-        const a=1
-        console.log(a)
+    it('test web from client in Page route', async () => {
         let browser = await puppeteer.launch({
             headless: false,
             sloMo: 35

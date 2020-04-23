@@ -10,13 +10,11 @@ function App() {
     <div className="App">
       <div className="center w85">
         <div className="ph3 pv1 background-gray">
-          <BrowserRouter>
           <Switch>
             <Route exact path="/" component={Frontpage}/>
             <Route exact path="/REGISTER" component={Register} />
             <Route exact path="/PAGE" component={Page} />
           </Switch>
-          </BrowserRouter>
         </div>
       </div>
     </div>

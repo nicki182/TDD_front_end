@@ -1,19 +1,28 @@
 import React from "react";
+import {FILTER_USER} from "./graphql/resolvers";
+import {useLazyQuery} from '@apollo/react-hooks'
 function Button({usersUpdate}) {
     let input={
         name:String
     }
     const inputref=React.createRef()
-    const onSubmit = async (e) => {
-        input = inputref.current.value
-        const response = await fetch('http://localhost:5001', {
-            method: 'POST',
-            header: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: input})
-        })
-        const users=await response.json()
-        usersUpdate(users)
-
+        const[filterUser, { loading, error, data }] = useLazyQuery(FILTER_USER);
+        if (loading) {
+            return <div>Loading...</div>;
+        }
+        if (error) {
+            console.error(error);
+            return <div>Error!</div>;
+        }
+        if(data){
+            usersUpdate(data.filterUser)
+        }
+        const onSubmit=(e)=>{
+            input = inputref.current.value
+            filterUser( {
+                variables: { name:input },
+                pollInterval: 500,
+            })
     }
   return(
       <div>
@@ -21,7 +30,7 @@ function Button({usersUpdate}) {
             ref={inputref}
             placeholder="search user"
         />
-        <button type="submit" className = "search users" onClick={onSubmit}>filter</button>
+        <button type="submit" onClick={onSubmit} className = "search users">filter</button>
         </div>
             )
       }
